@@ -1,0 +1,18 @@
+.container
+  h1 Gleif.org XML to CSV conversion
+  .col-md-8
+    .row
+      table.table.table-hover
+        thead
+          tr
+            th Document name
+            th XML
+            th CSV
+            th Status
+        tbody
+          - @documents.each do |doc|
+            tr
+              td = doc.name
+              td = link_to 'ZIPped', 'https://www.gleif.org/lei-files/20170911/GLEIF/' + doc.xml
+              td = link_to 'CSV', root_path + doc.csv
+              td = doc.job_statuses.last&.status
