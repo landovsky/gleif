@@ -1,3 +1,21 @@
+set :bundle_without, 'development'
+
+#server '207.154.209.213', user: 'ruby', roles: %w{app db web}
+server '37.205.8.146', user: 'ruby', roles: %w{app db web}
+
+set :ssh_options, {
+  #forward_agent: true,
+  keys: "~/.ssh/mac-home.pub"
+}
+
+set :deploy_to, "/home/ruby/gleif/production"
+
+set :branch, 'master'
+
+append :linked_files, "config/database.yml", "config/secrets.yml", "db/production.sqlite3"
+
+set :branch, 'master'
+
 # server-based syntax
 # ======================
 # Defines a single server with a list of roles and multiple properties.
@@ -41,11 +59,11 @@
 #
 # Global options
 # --------------
-#  set :ssh_options, {
-#    keys: %w(/home/rlisowski/.ssh/id_rsa),
-#    forward_agent: false,
-#    auth_methods: %w(password)
-#  }
+#set :ssh_options, {
+#   keys: %w(/home/ruby/.ssh/id_rsa),
+#   forward_agent: false,
+#   auth_methods: %w(password)
+#   }
 #
 # The server-based syntax can be used to override options:
 # ------------------------------------
