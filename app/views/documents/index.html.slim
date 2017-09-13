@@ -2,6 +2,18 @@
   h1 Gleif.org XML to CSV conversion
   .col-md-8
     .row
+      .well
+        p
+          | For each processed document, the CSV contains the following columns:
+          pre LEI number, LegalName, BusinessRegisterEntityID.
+        p
+          | More attributes can be added by popular demand. Just
+          a< href="https://twitter.com/messages/compose?recipient_id=98477639" target="_blank"
+            strong tweet me
+          | .
+        br
+        p.small Disclaimer: data are provided as is. Tweet me if you find errors.
+    .row
       table.table.table-hover
         thead
           tr
@@ -11,7 +23,7 @@
             th Status
         tbody
           - @documents.each do |doc|
-            tr
+            tr.active
               td = doc.name
               td = link_to 'ZIPped', 'https://www.gleif.org/lei-files/20170911/GLEIF/' + doc&.xml
               td = doc.csv ? link_to('CSV', root_path + doc.csv) : ''
