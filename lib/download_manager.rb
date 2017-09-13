@@ -18,7 +18,7 @@ class DownloadManager
     end
 
     # Get remote filename
-    if %w(development test).include? Rails.env
+    if %w(test).include? Rails.env
       @url      = 'http://localhost:3000/20170903-GLEIF-concatenated-file.zip'
       @filename = '20170903-GLEIF-concatenated-file.zip'
     else
@@ -70,7 +70,7 @@ class DownloadManager
     # Converts xml to csv
     log('XML>CSV conversion started')
     elements = [{ element: 'LEI' }, { element: 'LegalName' }, { element: 'BusinessRegisterEntityID' }]
-    XMLParser::DomParser.new(xml, nil, 100)
+    XMLParser::Parser.new(xml, elements, 10000).sax
     if File.exist?("#{PUBLIC}#{xml}.csv")
       log('XML>CSV conversion finished')
     else
