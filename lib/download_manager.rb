@@ -32,7 +32,8 @@ class DownloadManager
     doc = Document.processed.find_by(name: @filename)
     if doc
       log("Document already successfully processed, doc: #{doc.id}")
-      raise 'DownloadManagerDocument already successfully processed'
+      puts 'DownloadManager: Document already successfully processed'
+      return
     end
 
     # Create document in DB and link with process
@@ -62,7 +63,7 @@ class DownloadManager
       xml = DownloadManager.unzip(@filename)
       log("Unzipping done (#{xml})")
     rescue Exception => msg
-      log("Unzipping failed (#{xml}), error: #{msg}")
+      MyLogger.logme("DownloadManager: Uznipping failed, err: #{msg}", level: 'fatal')
       @status.set('abort')
       raise msg
     end
@@ -72,20 +73,20 @@ class DownloadManager
     elements = [{ element: 'LEI' }, { element: 'LegalName' }, { element: 'BusinessRegisterEntityID' }]
     begin
       XMLParser::Parser.new(xml, elements, 10000).sax
-      unless File.size("#{PUBLIC}#{xml}.csv")
+      if File.size?("#{PUBLIC}#{xml}.csv")
         log('XML>CSV conversion finished')
       else
         log('XML>CSV conversion FAILED, file empty')
-        @status.set('abort')
         raise 'XML>CSV conversion FAILED, file empty.'
       end
     rescue Exception => msg
+      @status.set('abort')
+      MyLogger.logme("DownloadManager: XML>CSV conversion failed, err: #{msg}", level: 'fatal')
       raise msg
     end
 
     # Save file link to DB
     @document.update(csv: xml + '.csv')
-    puts "_________________#{@document.csv}"
 
     # Cleanup
     log("Cleanup FAILED. Files #{xml} #{@filename} not found") unless File.exist?("#{TEMP}#{xml}") && File.exist?("#{TEMP}#{@filename}")
@@ -101,7 +102,7 @@ class DownloadManager
     # Finish
     @status.update(status: 'complete')
     log("Finished successfully")
-    'DownloadManager: finished successfully.'
+    puts 'DownloadManager: Finished successfully.'
   end
 
   def self.remote_filename
