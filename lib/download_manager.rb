@@ -14,11 +14,11 @@ class DownloadManager
     # Check, that no other process is active and create lock for this process
     if JobStatus.active.any?
       MyLogger.logme('DownloadManager: perform begun while another process is active', level: 'warn')
-      return
+      raise 'DownloadManager: perform begun while another process is active'
     end
 
     # Get remote filename
-    if %w(test).include? Rails.env
+    if %w(development test).include? Rails.env
       @url      = 'http://localhost:3000/20170903-GLEIF-concatenated-file.zip'
       @filename = '20170903-GLEIF-concatenated-file.zip'
     else
@@ -32,7 +32,7 @@ class DownloadManager
     doc = Document.processed.find_by(name: @filename)
     if doc
       log("Document already successfully processed, doc: #{doc.id}")
-      return
+      raise 'DownloadManagerDocument already successfully processed'
     end
 
     # Create document in DB and link with process
@@ -52,7 +52,7 @@ class DownloadManager
         MyLogger.logme("DownloadManager: Fetching #{@filename} failed, err: #{msg}", level: 'fatal')
         File.delete("#{TEMP}/#{@filename}") unless File.size?("#{TEMP}/#{@filename}")
         @status.set('abort')
-        return
+        raise msg
       end
     end
 
@@ -64,19 +64,23 @@ class DownloadManager
     rescue Exception => msg
       log("Unzipping failed (#{xml}), error: #{msg}")
       @status.set('abort')
-      return
+      raise msg
     end
 
     # Converts xml to csv
     log('XML>CSV conversion started')
     elements = [{ element: 'LEI' }, { element: 'LegalName' }, { element: 'BusinessRegisterEntityID' }]
-    XMLParser::Parser.new(xml, elements, 10000).sax
-    if File.exist?("#{PUBLIC}#{xml}.csv")
-      log('XML>CSV conversion finished')
-    else
-      log('XML>CSV conversion FAILED')
-      @status.set('abort')
-      return
+    begin
+      XMLParser::Parser.new(xml, elements, 10000).sax
+      unless File.size("#{PUBLIC}#{xml}.csv")
+        log('XML>CSV conversion finished')
+      else
+        log('XML>CSV conversion FAILED, file empty')
+        @status.set('abort')
+        raise 'XML>CSV conversion FAILED, file empty.'
+      end
+    rescue Exception => msg
+      raise msg
     end
 
     # Save file link to DB
@@ -96,6 +100,8 @@ class DownloadManager
 
     # Finish
     @status.update(status: 'complete')
+    log("Finished successfully")
+    'DownloadManager: finished successfully.'
   end
 
   def self.remote_filename

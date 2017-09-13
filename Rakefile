@@ -7,7 +7,7 @@ Rails.application.load_tasks
 
 task :environment do
   Rollbar.configure do |config |
-    puts "____UPDATE token in rakefile if you want to test"
+    #puts "____UPDATE token in rakefile if you want to test"
     config.access_token = ''
   end
 end
