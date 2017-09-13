@@ -4,27 +4,34 @@
     .row
       .well
         p
-          | For each processed document, the CSV contains the following columns:
-          pre LEI number, LegalName, BusinessRegisterEntityID.
-        p
-          | More attributes can be added by popular demand. Just
-          a< href="https://twitter.com/messages/compose?recipient_id=98477639" target="_blank"
-            strong tweet me
-          | .
-        br
-        p.small Disclaimer: data are provided as is. Tweet me if you find errors.
+          strong At this site, you can find Level 1 LEI-CDF Version 1.0 Concatenated Files converted to CSV.
+        ul
+          li
+            | for each processed document, the CSV contains the following columns:
+            pre LEI number, LegalName, BusinessRegisterEntityID.
+          li
+            | values are separated by semicolon (;)
+          li
+            a> href="https://twitter.com/messages/compose?recipient_id=98477639" target="_blank"
+              strong tweet me
+            | if you need other attributes
     .row
-      table.table.table-hover
-        thead
-          tr
-            th Document name
-            th XML
-            th CSV
-            th Status
-        tbody
-          - @documents.each do |doc|
-            tr.active
-              td = doc.name
-              td = link_to 'ZIPped', 'https://www.gleif.org/lei-files/20170911/GLEIF/' + doc&.xml
-              td = doc.csv ? link_to('CSV', root_path + doc.csv) : ''
-              td = doc&.job_statuses.last.status
+      h4 Level 1 LEI-CDF Version 1.0 Concatenated Files
+      ul.list-group
+        li.list-group-item
+          table.table.table-hover
+            thead
+              tr
+                th Document name
+                th XML
+                th CSV
+                th Status
+            tbody
+              - @documents.each do |doc|
+                tr.active
+                  td = doc.name
+                  td = link_to 'ZIPped', 'https://www.gleif.org/lei-files/20170911/GLEIF/' + doc&.xml
+                  td = doc.csv ? link_to('CSV', root_path + doc.csv) : ''
+                  td = doc&.job_statuses.last.status
+    .row
+      p.small Disclaimer: data are provided without warranty. Tweet me if you spot any errors.
